@@ -7,21 +7,22 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
 
+// Serve the public folder
 app.use(express.static(path.join(__dirname, 'public')));
 
 io.on('connection', (socket) => {
   console.log('A user connected');
 
-  // Set username when received from the client
+  // Handle username setup
   socket.on('set username', (username) => {
-    socket.username = username;
-    console.log(`Username set: ${username}`);
+    socket.username = username || 'Anonymous';
+    console.log(`Username set: ${socket.username}`);
   });
 
   // Handle chat messages
   socket.on('chat message', (message) => {
-    const username = socket.username || 'Anonymous'; // Fallback to 'Anonymous' if no username set
-    io.emit('chat message', { username, message }); // Broadcast the message with the username
+    const username = socket.username || 'Anonymous';
+    io.emit('chat message', { username, message });
   });
 
   socket.on('disconnect', () => {
